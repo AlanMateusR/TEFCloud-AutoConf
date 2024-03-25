@@ -30,14 +30,31 @@
 
 <br>
 
-# || Resumo do Fluxo de funcionamento do script ||
+|| IMPLEMENTAÇÃO ||
 
-* **1.** 
-* **2.** 
-* **3.**
-* **4.** 
-* **5.** 
+[Breve explicação do fluxo de funcionamento]
+
+* 1. Primeiramente é configurado no servidor um numero lógico repassado pelo autorizador, o numero lógico TEF visa integrar o PDV (PONTO DE VENDA) do cliente final a operadora de cartão (exemplo: REDE, CIELO, STONE) por meio do servidor cloud alocado nas dependencias da FISERV.
+* 2. Verificar se o numero lógico esta dentro do padrão do autorizador (cada autorizador tem seu padrão, por exemplo para CIELO o padrão de lógico é sempre começar com digito 4)
+* 3. Após ser inserido o numero lógico, é enviado token de confirmação de configuração para caixa de entrada do analista poder fazer COMMIT no servidor.
+*4. Buscar todos os dados de relação de multibandeiras TEF do CRM para efetuar configuração de bandeiras no servidor (a relação de bandeiras visa parametrizar qual operadora de cartão vai autorizar cada bandeira, exemplo; Mastercard Credito será autorizado pela Cielo)
+* 5. Após parametrizar as bandeiras, deve-se efetuar uma "carga de tabelas" que em suma faz um "ping" no servidor da operadora de cartão utilizando o numero lógico que foi configurado (se numero lógico não for valido a carga de tabelas resultará em erro)
+* 6. Deve ser revisado se as configurações foram aplicadas corretamente e a carga de tabelas resultou em sucesso, caso tudo esteja em conformidade deve-se alterar o status da licença do cliente para IMPLANTAÇÃO e comentado os Logs no CRM.
 
 <br>
 <br>
 
+[Script - resumo]
+
+  Configurar numero lógico da operadora de cartão fixado no pedido de venda TEF 
+ > Script vai colher os dados do pedido de venda selecionado via API do CRM, Numero do pedido de venda, Cnpj e Id Sitef 
+
+| Regra de inicialização |
+* deve haver pelo menos uma adquirente no pedido <<<
+* pedido deve ter o campo "id sitef" preenchido <<<
+* pedido deve estar com status de aprovado <<<
+
+
+>> Com os dados já em cache no programa, driver de simulação do navegador google-chrome (Webdriver-manager) vai inicializar na pagina de login do Sitef e começar as devidas configurações, validações e autenticações.
+>> Uma nova instancia do selenium será inicializada para efetuar nova integração e coleta de dados do CRM via API para então parametrizar toda a relação de bandeiras nos server.
+>> Mais uma vez outra instancia é criada para fazer carga de tabelas (ping) utilizando por chave o numero lógico ja configurado, se o resultado for OK o pedido de venda no CRM terá o status alterado e Log anexado.
